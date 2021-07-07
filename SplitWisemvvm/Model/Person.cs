@@ -1,18 +1,55 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 
 namespace SplitWisemvvm.Model
 {
-    public class Person
+    public class Person : INotifyPropertyChanged
     {
-        public string Name { get; set; }
+        private string name;
+        public string Name
+        {
+            get { return name; }
+            set
+            {
+                name = value;
+                RaisePropertyChange("Name");
+            }
+        }
 
-        public float Spent { get; set; }
+        private string spent;
+        public string Spent
+        {
+            get { return spent; }
+            set
+            {
+                spent = value;
+                RaisePropertyChange("Spent");
+            }
+        }
 
-        public float Share { get; set; }
+        private string share;
+        public string Share
+        {
+            get { return share; }
+            set
+            {
+                share = value;
+                RaisePropertyChange("Share");
+            }
+        }
 
-        public Person(string name, float spent, float share)
+        public event PropertyChangedEventHandler PropertyChanged;
+        public void RaisePropertyChange(string propertyname)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyname));
+            }
+        }
+
+        public Person(string name, string spent, string share)
         {
             this.Name = name;
             this.Spent = spent;

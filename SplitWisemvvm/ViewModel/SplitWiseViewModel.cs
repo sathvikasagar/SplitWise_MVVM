@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Text;
 using System.Windows;
 using System.Windows.Input;
@@ -9,7 +8,7 @@ using SplitWisemvvm.Model;
 
 namespace SplitWisemvvm.ViewModel
 {
-    public class SplitWiseViewModel : INotifyPropertyChanged
+    public class SplitWiseViewModel : Person
     {
         public ObservableCollection<Person> _person { get; set; }
 
@@ -19,72 +18,74 @@ namespace SplitWisemvvm.ViewModel
 
         public ICommand NewGroup { get; set; }
 
-        private string name;
-        public string Name
-        {
-            get { return name; }
-            set
-            {
-                name = value;
-                RaisePropertyChange("Name");
-            }
-        }
+        public ICommand Remove { get; set; }
 
-        private string spent;
-        public string Spent
-        {
-            get { return spent; }
-            set
-            {
-                spent = value;
-                RaisePropertyChange("Spent");
-            }
-        }
+        private Person itemSelected;
 
-        private string share;
-        public string Share
-        {
-            get { return share; }
-            set
-            {
-                share = value;
-                RaisePropertyChange("Share");
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        public void RaisePropertyChange(string propertyname)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyname));
-            }
-        }
-
-        public SplitWiseViewModel()
+        public SplitWiseViewModel():base("","","")
         {
             this._person = new ObservableCollection<Person>();
 
-            this.AddPerson = new RelayCommand((parameter) => {
-                _person.Add(new Person(this.Name, float.Parse(this.Spent), float.Parse(this.Share)));
+            this.AddPerson = new RelayCommand(_addPerson,disableAdd);
+
+            this.Calculate = new RelayCommand(_calculate);
+
+            this.NewGroup = new RelayCommand(_newGroup);
+
+            this.Remove = new RelayCommand(_remove,disableRemove);
+        }
+
+        public void _addPerson(object parameter)
+        {
+            if(Spent=="" && Share=="")
+            {
+                MessageBox.Show("plese enter amount spent and share");
+            }
+            else if(Spent == "" || Share == "")
+            {
+                if(Spent == "")
+                {
+                    MessageBox.Show("plese enter amount spent");
+                }
+                else if(Share == "")
+                {
+                    MessageBox.Show("plese enter share");
+                }
+            }
+            else
+            {
+                _person.Add(new Person(Name, Spent, Share));
                 Name = "";
                 Spent = "";
                 Share = "";
-            });
+            }
+        }
+        public  bool disableAdd(object parameter)
+        {
+            if(Name == "")
+            {
+                return false;
+            }
+            return true;
+        }
 
-            this.Calculate = new RelayCommand((parameter) => {
-                int count = _person.Count;
-                var output = new List<string>();
+        public void _calculate(object parameter)
+        {
+            int count = _person.Count;
+            var output = new List<string>();
 
-                float totalAmount = 0;
+            float totalShare = 0;
+            float totalAmount = 0;
+            for (int i = 0; i < count; i++)
+            {
+                totalAmount += float.Parse(_person[i].Spent);
+                totalShare += float.Parse(_person[i].Share);
+            }
+            if(totalShare==100)
+            {
                 for (int i = 0; i < count; i++)
                 {
-                    totalAmount += _person[i].Spent;
-                }
-
-                for (int i = 0; i < count; i++)
-                {
-                    float toBeRecieved = (_person[i].Spent - (totalAmount * _person[i].Share) / 100);
+                    float toBeRecieved = (float.Parse(_person[i].Spent) - (totalAmount * float.Parse(_person[i].Share)) / 100);
                     string message = "";
                     if (toBeRecieved < 0)
                     {
@@ -98,16 +99,45 @@ namespace SplitWisemvvm.ViewModel
                 }
                 var op = string.Join(Environment.NewLine, output);
                 MessageBox.Show(op);
-            });
-
-            this.NewGroup = new RelayCommand((parameter) => {
-                for (int i = _person.Count - 1; i >= 0; i--)
-                {
-                    _person.RemoveAt(i);
-                }
-            });
+            }
+            else
+            {
+                MessageBox.Show("Total sum of share percentage should be equal to 100 per group");
+            }
         }
 
+        public void _newGroup(object parameter)
+        {
+            for (int i = _person.Count - 1; i >= 0; i--)
+            {
+                _person.RemoveAt(i);
+            }
+        }
 
+        public Person ItemSelected
+        {
+            get
+            {
+                return itemSelected;
+            }
+            set
+            {
+                this.itemSelected = value;
+            }
+        }
+
+        public void _remove(object parameter)
+        {
+            _person.Remove(this.itemSelected);
+        }
+
+        public bool disableRemove(object parameter)
+        {
+            if(this.itemSelected==null)
+            {
+                return false;
+            }
+            return true;
+        }
     }
 }

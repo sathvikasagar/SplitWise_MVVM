@@ -24,6 +24,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
@@ -38,7 +39,8 @@
             <Button Command="{Binding AddPerson}" Grid.Row="3" Grid.Column="1" HorizontalAlignment="Right">Add Person</Button>
             <Button Command="{Binding Calculate}" Grid.Row="4" Grid.Column="1" HorizontalAlignment="Right">Group Calculation</Button>
             <Button Command="{Binding NewGroup}"  Grid.Row="5" Grid.Column="1" HorizontalAlignment="Right">New Group</Button>
+            <Button Command="{Binding Remove}"  Grid.Row="6" Grid.Column="1" HorizontalAlignment="Right">Remove</Button>
         </Grid>
-        <DataGrid ItemsSource="{Binding Path=_person}" Grid.Row="0" Grid.Column="1"/>
+        <DataGrid ItemsSource="{Binding Path=_person}"  SelectedItem="{Binding Path=ItemSelected}" Grid.Row="0" Grid.Column="1"/>
     </Grid>
 </Window>
